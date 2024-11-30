@@ -1,0 +1,4 @@
+# Exclude the postgres database
+.data
+**/**/obj/
+**/**/bin/

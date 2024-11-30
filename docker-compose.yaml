@@ -1,0 +1,64 @@
+services:
+  # Redis for caching
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - dev
+  # LocalStack for AWS emulation.
+  localstack:
+    image: localstack/localstack
+    restart: always
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - GATEWAY_LISTEN=0.0.0.0:4566
+      - SERVICES=sns,sqs
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - EAGER_SERVICE_LOADING=1
+      - DEBUG=0
+      - LS_LOG=warn # trace, trace-internal, debug, info, warn, error, warning are the option
+    ports:
+      - '4566-4597:4566-4597'
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-/tmp/localstack}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - dev
+  # Local Development Database
+  db:
+    image: postgres:17
+    cpu_count: 6
+    restart: always
+    user: postgres
+    volumes:
+      - ./.data/database:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dev
+      - PGDATA=/var/lib/postgresql/data/db-files/
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    networks:
+      - dev
+  # Unit Test Database [Can be reset as required]
+  test-db:
+    image: postgres:17
+    cpu_count: 6
+    restart: always
+    user: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=unit_test
+    expose:
+      - 6543
+    ports:
+      - "6543:5432"
+    networks:
+      - dev
+networks:
+  dev:
