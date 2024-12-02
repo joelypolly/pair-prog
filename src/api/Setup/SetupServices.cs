@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 using PairProgrammingApi.DataAccess;
 using PairProgrammingApi.Logging;
+using PairProgrammingApi.Modules.Background;
+using StackExchange.Redis;
 
 namespace PairProgrammingApi.Setup;
 
@@ -15,7 +17,6 @@ public static class SetupServicesExtension
 
     public static IServiceCollection AddPairServices(this IServiceCollection services, string connectionString)
     {
-
         // JSON serialization options; enums as strings.
         // HTTP output
         services.ConfigureHttpJsonOptions(
@@ -79,7 +80,13 @@ public static class SetupServicesExtension
                     options.UseLoggerFactory(LoggerFactory.Create(o => o.AddConsole()));
                 }
             });
-
+        
+        // Setup Redis
+        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
+        services.AddHttpClient();
+        // Add redis based pub/sub
+        services.AddHostedService<RedisSubService>();
+        
         Log.Here().Information("Configured services");
         return services;
     }
