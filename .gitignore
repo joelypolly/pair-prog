@@ -1,4 +1,7 @@
 # Exclude the postgres database
 .data
+# Exclude dotnet build / release file
 **/**/obj/
 **/**/bin/
+# Exclude MacOS files
+.DS_Store
