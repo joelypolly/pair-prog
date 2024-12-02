@@ -52,7 +52,7 @@ public class HealthCheckController(PairContext dbContext) : ModuleBase(dbContext
         var producerTask = Task.Run(async () =>
         {
             var random = new Random();
-            while (!cancellationToken.IsCancellationRequested)
+            for (var i = 0; i < 10; i++)
             {
                 await redis.StreamAddAsync(RedisSubService.StreamName,
                 [
