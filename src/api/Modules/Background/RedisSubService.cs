@@ -57,5 +57,10 @@ public class RedisSubService(IConnectionMultiplexer mux): BackgroundService
         Task.WaitAll([consumerGroupReadTask], stoppingToken);
     }
     
+    /// <summary>
+    /// A static method that can recreate a dictionary from the StreamEntry
+    /// </summary>
+    /// <param name="entry">The steame entry</param>
+    /// <returns></returns>
     private static Dictionary<string, string> ParseResult(StreamEntry entry) => entry.Values.ToDictionary(x => x.Name.ToString(), x => x.Value.ToString());
 }
